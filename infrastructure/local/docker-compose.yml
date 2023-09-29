@@ -1,0 +1,115 @@
+---
+version: '3'
+
+services:
+  kafka:
+    image: docker.io/bitnami/kafka:3.5.1
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CFG_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092,EXTERNAL://localhost:9094'
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_CFG_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092,EXTERNAL://:9094'
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CFG_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - ${PWD}/log4j.properties:/opt/bitnami/kafka/config/log4j.properties
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: kafka-topics --list --bootstrap-server kafka:9092
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    image: postgres:14.7-alpine
+    hostname: postgres
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./target:/usr/share/java/postgres-db
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+        test: [ "CMD-SHELL", "pg_isready" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+  careplan:
+    depends_on:
+      - kafka
+      - postgres
+      - provider-schedule
+    build:
+      context: ../../software/care-plan
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/root
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      CAREPLAN_HTTP_API_KEY_TOKEN: LOCAL_DEV
+  provider-schedule:
+    depends_on:
+      - kafka
+      - postgres
+    build:
+      context: ../../software/provider-schedule
+      dockerfile: Dockerfile
+    ports:
+      - 8090:8090
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/root
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      PROVIDER_HTTP_API_KEY_TOKEN: LOCAL_DEV
+  kafka-connect:
+    image: 'bitnami/kafka:3.5.1'
+    container_name: kafka_connect
+    user: root
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_SESSION_TOKEN: test
+    ports:
+      - '8083:8083'
+    volumes:
+      - '${PWD}/connect-standalone.properties:/opt/bitnami/kafka/config/connect-standalone.properties'
+      - '${PWD}/connect-log4j.properties:/opt/bitnami/kafka/config/connect-log4j.properties'
+      - '${PWD}/kafka-eventbridge-sink-with-dependencies.jar:/usr/local/share/java/connect/kafka-eventbridge-sink/kafka-eventbridge-sink-with-dependencies.jar'
+      - '${PWD}/ebconnector.properties:/opt/bitnami/kafka/config/ebconnector.properties'
+    depends_on:
+      - kafka
+    security_opt:
+      - no-new-privileges:true
+    command: ["/bin/bash","-c","env && /opt/bitnami/kafka/bin/connect-standalone.sh /opt/bitnami/kafka/config/connect-standalone.properties /opt/bitnami/kafka/config/ebconnector.properties"]
+  localstack:
+    image: localstack/localstack:2.2.0
+    ports:
+      - "4566:4566" # LocalStack Gateway
+      - "4510-4559:4510-4559" # external services port range
+    security_opt:
+      - no-new-privileges:true
+
+  insurance-processor:
+    depends_on:
+      - kafka
+
+    build:
+      context: ../../software/insurance-processor
+      dockerfile: Dockerfile
+
+    environment:
+      SPRING_KAFKA_STREAMS_BOOTSTRAP_SERVERS: kafka:9092
+      

@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "8441dd5b-beb0-4092-9be1-1fc4b9ee3973",
+		"name": "Managed Care Plan - API Suite",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01-create-provider [PROVIDER-SCHEDULE]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    pm.collectionVariables.set(\"provider_id\", jsonData.id)",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"speciality\": \"Dentist\",\n    \"gender\": \"MALE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{provider_host_url}}/providers",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02-get-provider [PROVIDER-SCHEDULE]",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{provider_host_url}}/providers/{{provider_id}}",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers",
+						"{{provider_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03-post-availability [PROVIDER-SCHEDULE]",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fromDate\": \"01.01.2023\",\n    \"toDate\": \"04.05.2023\",\n    \"encounterType\": \"ONSITE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{provider_host_url}}/providers/{{provider_id}}/availability",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers",
+						"{{provider_id}}",
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04-get-availability [PROVIDER-SCHEDULE]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{provider_host_url}}/providers/{{provider_id}}/availability",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers",
+						"{{provider_id}}",
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05-get-all-provider-availabilities [CARE-PLAN]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    pm.collectionVariables.set(\"provider_availability_id\", jsonData[0].id)",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{patient_host_url}}/availability",
+					"host": [
+						"{{patient_host_url}}"
+					],
+					"path": [
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06-create-patient [CARE-PLAN]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    pm.collectionVariables.set(\"patient_id\", jsonData.id)",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Something\",\n    \"lastName\": \"else\",\n    \"gender\": \"male\",\n    \"dateOfBirth\": \"1991-08-06\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{patient_host_url}}/patients",
+					"host": [
+						"{{patient_host_url}}"
+					],
+					"path": [
+						"patients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07-create-booking [CARE-PLAN]",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"providerAvailabilityId\": \"{{provider_availability_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{patient_host_url}}/patients/{{patient_id}}/bookings",
+					"host": [
+						"{{patient_host_url}}"
+					],
+					"path": [
+						"patients",
+						"{{patient_id}}",
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08-get-bookings [CARE-PLAN]",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{patient_host_url}}/patients/{{patient_id}}/bookings",
+					"host": [
+						"{{patient_host_url}}"
+					],
+					"path": [
+						"patients",
+						"{{patient_id}}",
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09-verify-booked [PROVIDER-SCHEDULE]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    var jsonData = JSON.parse(responseBody);",
+							"    pm.collectionVariables.set(\"provider_availability_id\", jsonData[0].id)",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{provider_host_url}}/providers/{{provider_id}}/availability",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers",
+						"{{provider_id}}",
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10-delete-availability [PROVIDER-SCHEDULE]",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{provider_host_url}}/providers/{{provider_id}}/availability/{{provider_availability_id}}",
+					"host": [
+						"{{provider_host_url}}"
+					],
+					"path": [
+						"providers",
+						"{{provider_id}}",
+						"availability",
+						"{{provider_availability_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11-delete-booking [CARE-PLAN]",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{patient_host_url}}/patients/{{patient_id}}/bookings/<BOOKING_ID_HERE>",
+					"host": [
+						"{{patient_host_url}}"
+					],
+					"path": [
+						"patients",
+						"{{patient_id}}",
+						"bookings",
+						"<BOOKING_ID_HERE>"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "LOCAL_DEV",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-API-KEY",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "provider_id",
+			"value": ""
+		},
+		{
+			"key": "provider_availability_id",
+			"value": ""
+		},
+		{
+			"key": "patient_id",
+			"value": ""
+		},
+		{
+			"key": "provider_host_url",
+			"value": ""
+		},
+		{
+			"key": "patient_host_url",
+			"value": ""
+		},
+		{
+			"key": "booking_id",
+			"value": ""
+		}
+	]
+}

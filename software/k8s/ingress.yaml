@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: app
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: care-plan-service-svc
+                port:
+                  number: 8080
+          - path: /providers
+            pathType: Prefix
+            backend:
+              service:
+                name: provider-schedule-service-svc
+                port:
+                  number: 8090

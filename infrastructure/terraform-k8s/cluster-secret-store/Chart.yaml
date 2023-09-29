@@ -1,0 +1,6 @@
+apiVersion: v2
+name: external-secrets
+description: Cluster setup for secret store
+type: application
+version: 1.0.1
+appVersion: "1.0.1"

@@ -1,0 +1,19 @@
+.classpath.txt
+target
+.classpath
+.project
+.idea
+.settings
+.vscode
+*.iml
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# Terraform stuff
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+
+terraform-k8s/builds/*

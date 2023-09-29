@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: provider-schedule-service
+  name: provider-schedule-service
+  namespace: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: provider-schedule-service
+  template:
+    metadata:
+      labels:
+        app: provider-schedule-service
+    spec:
+      containers:
+        - image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:provider-schedule-1.2
+          imagePullPolicy: Always
+          name: provider-schedule-service
+          ports:
+            - name: http
+              containerPort: 8090
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8090
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8090
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: rds-config
+                  key: jdbc_connection_url
+            - name: SPRING_DATASOURCE_USER
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: amazon-rds-db-secret
+                  key: rds_password
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              value: "cluster-kafka-bootstrap.kafka.svc:9092"
+            - name: PROVIDER_HTTP_API_KEY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: managed-care-plan-api-key
+                  key: api_key
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: app
+  name: provider-schedule-service-svc
+spec:
+  selector:
+    app: provider-schedule-service
+  ports:
+    - name: http
+      port: 8090

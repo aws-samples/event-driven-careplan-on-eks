@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rds-config
+  namespace: {{ .Values.appNamespace }}
+data:
+  jdbc_connection_url: "{{ .Values.rdsJdbcUrl }}"

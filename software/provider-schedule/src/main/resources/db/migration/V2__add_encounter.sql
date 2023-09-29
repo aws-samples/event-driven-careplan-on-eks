@@ -1,0 +1,1 @@
+ALTER TABLE provider_schedule.availability ADD encounter_type TEXT;

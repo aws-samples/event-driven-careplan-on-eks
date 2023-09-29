@@ -1,0 +1,8 @@
+eventBridgeKafkaConnectIamRoleArn: ${eventbridge_kafka_connect_role_iam_role_arn}
+ecrRepositoryUrl: ${ecr_repository_url}
+ecrSecretName: ${ecr_secret_name}
+appNamespace: ${app_namespace}
+clusterSecretStoreName: ${cluster_secret_store_name}
+awsSecretsManagerSecretRdsSecretName: ${aws_secrets_manager_secret_rds_secret_name}
+awsSecretsManagerSecretApiKeyName: ${aws_secrets_manager_secret_api_key_name}
+rdsJdbcUrl: ${rds_jdbc_url}

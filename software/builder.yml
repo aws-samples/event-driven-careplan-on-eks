@@ -1,0 +1,21 @@
+---
+version: '3'
+
+services:
+  careplan:
+    image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:care-plan-1.2
+    build:
+      context: ./care-plan
+      dockerfile: Dockerfile
+  provider-schedule:
+    image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:provider-schedule-1.2
+    build:
+      context: ./provider-schedule
+      dockerfile: Dockerfile
+  insurance-processor:
+    image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:insurance-processor-1.2
+    build:
+      context: ./insurance-processor
+      dockerfile: Dockerfile
+
+

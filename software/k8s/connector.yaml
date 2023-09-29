@@ -1,0 +1,21 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: eventbridge-sink-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: connect-cluster
+spec:
+  class: software.amazon.event.kafkaconnector.EventBridgeSinkConnector
+  tasksMax: 2
+  config:
+    auto.offset.reset: "earliest"
+    connector.class: "software.amazon.event.kafkaconnector.EventBridgeSinkConnector"
+    topics: "careplan.bookings"
+    aws.eventbridge.connector.id: "eventbridge-connector"
+    aws.eventbridge.eventbus.arn: ${AWS_EVENTBRIDGE_ARN}
+    aws.eventbridge.region: ${AWS_REGION}
+    aws.eventbridge.endpoint.uri: https://events.${AWS_REGION}.amazonaws.com
+    key.converter: "org.apache.kafka.connect.storage.StringConverter"
+    value.converter: "org.apache.kafka.connect.json.JsonConverter"
+    value.converter.schemas.enable: false

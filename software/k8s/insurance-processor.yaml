@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: insurance-processor-service
+  name: insurance-processor-service
+  namespace: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: insurance-processor-service
+  template:
+    metadata:
+      labels:
+        app: insurance-processor-service
+    spec:
+      containers:
+        - image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:insurance-processor-1.2
+          name: insurance-processor-service
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_KAFKA_STREAMS_BOOTSTRAP-SERVERS
+              value: "cluster-kafka-bootstrap.kafka.svc:9092"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            allowPrivilegeEscalation: false
+

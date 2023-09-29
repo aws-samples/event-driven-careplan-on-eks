@@ -1,0 +1,5 @@
+secretNamespace: ${secret_namespace}
+clusterSecretStoreSa: ${cluster_secret_store_sa}
+clusterSecretStoreName: ${cluster_secret_store_name}
+clusterSecretStoreIamRoleArn: ${cluster_secrets_store_iam_role_arn}
+awsRegion: ${aws_region}

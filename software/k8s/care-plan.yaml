@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: care-plan-service
+  name: care-plan-service
+  namespace: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: care-plan-service
+  template:
+    metadata:
+      labels:
+        app: care-plan-service
+    spec:
+      containers:
+        - image: ${AWS_ECR_REGISTRY}/managed-care-plan-registry:care-plan-1.2
+          name: care-plan-service
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: rds-config           # The ConfigMap this value comes from.
+                  key: jdbc_connection_url
+            - name: SPRING_DATASOURCE_USER
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: amazon-rds-db-secret
+                  key: rds_password
+            - name: CAREPLAN_HTTP_API_KEY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: managed-care-plan-api-key
+                  key: api_key
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              value: "cluster-kafka-bootstrap.kafka.svc:9092"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: app
+  name: care-plan-service-svc
+spec:
+  selector:
+    app: care-plan-service
+  ports:
+    - name: http
+      port: 8080

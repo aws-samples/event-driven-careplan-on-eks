@@ -1,0 +1,1 @@
+ALTER TABLE care_plan.booking ADD payment_mode TEXT;

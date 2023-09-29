@@ -1,0 +1,6 @@
+apiVersion: v2
+name: app-environment
+description: Setup namespaces and configurations for applications
+type: application
+version: 1.2.0
+appVersion: "1.1.0"

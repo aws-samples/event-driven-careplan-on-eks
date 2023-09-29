@@ -1,0 +1,1 @@
+ALTER TABLE care_plan.provider_availability ADD last_event_type TEXT;
