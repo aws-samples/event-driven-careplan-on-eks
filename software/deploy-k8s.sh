@@ -8,7 +8,7 @@ envsubst < k8s/insurance-processor.yaml | kubectl apply -f -
 envsubst < k8s/connector.yaml | kubectl apply -f -
 
 envsubst < k8s/eventbus.yaml | kubectl apply -f -
-envsubst < k8s/eventsource-kafka.yaml.yaml | kubectl apply -f -
+envsubst < k8s/eventsource-kafka.yaml | kubectl apply -f -
 envsubst < k8s/sensor-rbac.yaml | kubectl apply -f -
 envsubst < k8s/sensor-workflow.yaml | kubectl apply -f -
 
