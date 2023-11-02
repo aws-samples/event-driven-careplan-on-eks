@@ -164,7 +164,19 @@ module "eks_blueprints_addons" {
 
   # mithumal - adding Argo workflow stuff
   enable_argo_workflows = true
+
  
+
+  enable_argo_events = true
+  argo_events = {
+    name          = "argo-events"
+    namespace     = "argo-events"
+    chart_version = "2.4.0"
+    repository    = "https://argoproj.github.io/argo-helm"
+    values        = [templatefile("${path.module}/helm-values/argo-events-values.yaml", {})]
+  }
+
+
 }
 
 #---------------------------------------------------------------
